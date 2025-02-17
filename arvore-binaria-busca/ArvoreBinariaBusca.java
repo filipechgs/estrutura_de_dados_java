@@ -38,39 +38,22 @@ public class ArvoreBinariaBusca {
         }
     }
 
-        /* Algoritmos de varredura */
-    private void preFixado(No atual) {
-        if (atual != null) {
-            System.out.println("Id: " + atual.getId() + " Elemento: " + atual.getElemento());
-            preFixado(atual.getEsq());
-            preFixado(atual.getDir());
-        }
-    }
-
-    private void posFixado(No atual) {
-        if (atual != null) {
-            posFixado(atual.getEsq());
-            posFixado(atual.getDir());
-            System.out.println("Id: " + atual.getId() + " Elemento: " + atual.getElemento());
-        }
-    }
-
-    private void simFixado(No atual) // caminhamento simétrico fixado
+    /* Algoritmos de varredura */
+    private void inFixado(No atual) // caminhamento in fixado da árvore binária
     {
         if (atual != null) {
-            simFixado(atual.getEsq());
-            System.out.println("Id: " + atual.getId() + " Elemento: " + atual.getElemento());
-            simFixado(atual.getDir());
+            inFixado(atual.getEsq());
+            System.out.println("Id: " + atual.getId() + " Elemento: "+atual.getElemento());
+            inFixado(atual.getDir());
         }
     }
 
-    private long calcAltura(No atual, long a) 
-    {
+    private long calcAltura(No atual, long a) {
         if (atual != null) {
             long esquerda, direita;
             esquerda = calcAltura(atual.getEsq(), a) + 1;
             direita = calcAltura(atual.getDir(), a) + 1;
-            
+
             if (esquerda > direita) {
                 return a + esquerda;
             } else {
@@ -87,6 +70,6 @@ public class ArvoreBinariaBusca {
 
     public void imprimeElementosArvore() // impressão dos elementos da árvore
     {
-        preFixado(raiz);
+        inFixado(raiz);
     }
 }
