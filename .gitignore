@@ -1,1 +1,4 @@
 *.class
+.gitignore
+/arvore-pti
+/teste-arvore-gpt
