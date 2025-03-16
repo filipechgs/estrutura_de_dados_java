@@ -44,7 +44,13 @@ class Grafo {
         }
     }
 
-    public void executarDFS() { // deep-first search
+    /**
+     *  DFS e BFD
+     *  Métodos que implemtam algorítmos para sistematicamente buscar e identificar todos
+     *  os vértices alcançáveis a partir de um determinado vértice inicial.
+     */
+    // Deep-first Search
+    public void executarDFS() { 
         if (numVertices == 0) {
             System.out.println("Erro: Nenhum vértice disponível para busca.");
             return;
@@ -56,36 +62,42 @@ class Grafo {
         pilha.push(0);
 
         while (!pilha.isEmpty()) {
-            int verticeAdjacente = obterVerticeNaoVisitado(pilha.peek());
+            int verticeAdjacente = verificarSeVerticeAdjacenteFoiVisitado(pilha.peek());
 
+            // Se o vertice ja foi visitado, remove-o da pilha
             if (verticeAdjacente == -1) {
                 pilha.pop();
+
+            // Se o vertice não foi visitado, adiciona-o na pilha e realiza uma ação
             } else {
                 listaVertice[verticeAdjacente].marcarComoVisitado();
                 mostrarVertice(verticeAdjacente);
                 pilha.push(verticeAdjacente);
             }
         }
+
         // Reseta as marcações dos vetices
         for (int v = 0; v < numVertices; v++) {
             listaVertice[v].marcarComoNaoVisitado();
         }
     }
 
-    private int obterVerticeNaoVisitado(int vTopoPilha) {
-        if (vTopoPilha < 0 || vTopoPilha >= numVertices) {
+    private int verificarSeVerticeAdjacenteFoiVisitado(int verticeSelecionado) {
+        if (verticeSelecionado < 0 || verticeSelecionado >= numVertices) {
             return -1;  // Evita erro ao acessar posição inválida
         }
 
         for (int v = 0; v < numVertices; v++) {
-            if (matriz[vTopoPilha][v] == 1 && !listaVertice[v].getVisitado()) {
+            if (matriz[verticeSelecionado][v] == 1 && !listaVertice[v].getVisitado()) {
                 return v;
             }
         }
+
         return -1;
     }
 
-    public void executarBFS() { // breadth-first search
+    // Breadth-first Search
+    public void executarBFS() { 
         if (numVertices == 0) {
             System.out.println("Erro: Nenhum vértice disponível para busca.");
             return;
@@ -97,16 +109,23 @@ class Grafo {
         fila.enqueue(0);
         int vertice2;
 
-        // Desenfilera os elementos até que a fila esteja vazia
+        // Enquanto a fila tiver elementos:
         while (!fila.isEmpty()) { 
+            // Desenfilera o vertice
             int vertice1 = fila.dequeue();
 
-            while ((vertice2 = obterVerticeNaoVisitado(vertice1)) != -1) { 
+            // Enquanto hover vertice não visitado, adjacente ao vertice desenfilerado:
+            while ((vertice2 = verificarSeVerticeAdjacenteFoiVisitado(vertice1)) != -1) { 
+                // Marca o vertice adjacente como visitado
+                // Enfilera o vertice adjacente
+                // Enquanto este looping não alcança s sua condição de parada, ele diatncia o looping externo da condição de parada
+                // O desenfileramento só recomeça quando este looping para
                 listaVertice[vertice2].marcarComoVisitado();
                 mostrarVertice(vertice2);
                 fila.enqueue(vertice2);
             }
         }
+
         // Reseta as marcações dos vetices
         for (int v = 0; v < numVertices; v++) {
             listaVertice[v].marcarComoNaoVisitado();
