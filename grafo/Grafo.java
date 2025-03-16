@@ -44,7 +44,7 @@ class Grafo {
         }
     }
 
-    public void executarDFS() {
+    public void executarDFS() { // deep-first search
         if (numVertices == 0) {
             System.out.println("Erro: Nenhum vértice disponível para busca.");
             return;
@@ -56,8 +56,8 @@ class Grafo {
         pilha.push(0);
 
         while (!pilha.isEmpty()) {
-            int verticeAdjacente = obtemVerticeNaoVisitado(pilha.peek());
-            
+            int verticeAdjacente = obterVerticeNaoVisitado(pilha.peek());
+
             if (verticeAdjacente == -1) {
                 pilha.pop();
             } else {
@@ -66,13 +66,13 @@ class Grafo {
                 pilha.push(verticeAdjacente);
             }
         }
-
+        // Reseta as marcações dos vetices
         for (int v = 0; v < numVertices; v++) {
             listaVertice[v].marcarComoNaoVisitado();
         }
     }
 
-    private int obtemVerticeNaoVisitado(int vTopoPilha) {
+    private int obterVerticeNaoVisitado(int vTopoPilha) {
         if (vTopoPilha < 0 || vTopoPilha >= numVertices) {
             return -1;  // Evita erro ao acessar posição inválida
         }
@@ -83,5 +83,33 @@ class Grafo {
             }
         }
         return -1;
+    }
+
+    public void executarBFS() { // breadth-first search
+        if (numVertices == 0) {
+            System.out.println("Erro: Nenhum vértice disponível para busca.");
+            return;
+        }
+
+        FilaArray<Integer> fila = new FilaArray<>();
+        listaVertice[0].marcarComoVisitado();
+        mostrarVertice(0);
+        fila.enqueue(0);
+        int vertice2;
+
+        // Desenfilera os elementos até que a fila esteja vazia
+        while (!fila.isEmpty()) { 
+            int vertice1 = fila.dequeue();
+
+            while ((vertice2 = obterVerticeNaoVisitado(vertice1)) != -1) { 
+                listaVertice[vertice2].marcarComoVisitado();
+                mostrarVertice(vertice2);
+                fila.enqueue(vertice2);
+            }
+        }
+        // Reseta as marcações dos vetices
+        for (int v = 0; v < numVertices; v++) {
+            listaVertice[v].marcarComoNaoVisitado();
+        }
     }
 }

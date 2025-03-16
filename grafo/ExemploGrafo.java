@@ -21,8 +21,10 @@ class ExemploGrafo {
         g.adicionarAresta(2, 3); // aresta CD
         
         System.out.print("DFS - Vertices visitados: ");
-        
         g.executarDFS(); // pesquisa em profundidade
         System.out.println();
+        System.out.print("BFS - Vertices visitados: ");
+        g.executarBFS(); // pesquisa em profundidade
+
     } // final main
 }
