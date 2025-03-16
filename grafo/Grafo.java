@@ -1,9 +1,9 @@
 /* Implementado com Matriz de Adjacencia */
 class Grafo {
 
-    private final int MAX_VERTICES = 20; // final torna esta variável em constante.
-    private Vertice listaVertice[];
-    private int matriz[][];
+    private static final int MAX_VERTICES = 20; // final e static tornam essa variável constante.
+    private Vertice[] listaVertice;
+    private int[][] matriz;
     private int numVertices;
 
     public Grafo() {
@@ -13,46 +13,73 @@ class Grafo {
 
         for (int y = 0; y < MAX_VERTICES; y++) {
             for (int x = 0; x < MAX_VERTICES; x++) {
-                matriz[x][y] = 0;
+                matriz[y][x] = 0;  // Corrigido para seguir lógica padrão de linhas e colunas
             }
         }
     }
 
     public void adicionarVertice(String rotulo) {
-        numVertices++;
-        listaVertice[numVertices] = new Vertice(rotulo);
+        if (numVertices < MAX_VERTICES) {
+            listaVertice[numVertices] = new Vertice(rotulo);
+            numVertices++;
+        } else {
+            System.out.println("Erro: Limite máximo de vértices atingido.");
+        }
     }
 
     public void adicionarAresta(int inicio, int fim) {
-        matriz[inicio][fim] = 1;
-        matriz[fim][inicio] = 1;
+        if (inicio >= 0 && inicio < numVertices && fim >= 0 && fim < numVertices) {
+            matriz[inicio][fim] = 1;
+            matriz[fim][inicio] = 1;
+        } else {
+            System.out.println("Erro: Índices de vértices inválidos para adição de aresta.");
+        }
     }
 
-    public void mostrarVertice(int v) { // método para exibir um determinado vértice
-        System.out.print(listaVertice[v].getRotulo());
+    public void mostrarVertice(int v) {
+        if (v >= 0 && v < numVertices) {
+            System.out.print(listaVertice[v].getRotulo()); // Exibe sem quebra de linha no console
+        } else {
+            System.out.println("Erro: Índice de vértice inválido.");
+        }
     }
 
-    public void fazerDFS() {
-        PilhaEncadeada pilha = new PilhaEncadeada();
+    public void executarDFS() {
+        if (numVertices == 0) {
+            System.out.println("Erro: Nenhum vértice disponível para busca.");
+            return;
+        }
+
+        PilhaEncadeada<Integer> pilha = new PilhaEncadeada<>();
         listaVertice[0].marcarComoVisitado();
         mostrarVertice(0);
         pilha.push(0);
 
         while (!pilha.isEmpty()) {
-            int verticeAdjacente = pegaVerticeNaoVisitado((int) pilha.peek());
+            int verticeAdjacente = obtemVerticeNaoVisitado(pilha.peek());
             
             if (verticeAdjacente == -1) {
                 pilha.pop();
+            } else {
+                listaVertice[verticeAdjacente].marcarComoVisitado();
+                mostrarVertice(verticeAdjacente);
+                pilha.push(verticeAdjacente);
             }
-            
         }
 
+        for (int v = 0; v < numVertices; v++) {
+            listaVertice[v].marcarComoNaoVisitado();
+        }
     }
 
-    private int pegaVerticeNaoVisitado(int v) { // método encontra vértice ainda não visitado
-        for (int j = 0; j < numVertices; j++) {
-            if (matriz[v][j] == 1 && listaVertice[j].getVisitado() == false) {
-                return j;
+    private int obtemVerticeNaoVisitado(int vTopoPilha) {
+        if (vTopoPilha < 0 || vTopoPilha >= numVertices) {
+            return -1;  // Evita erro ao acessar posição inválida
+        }
+
+        for (int v = 0; v < numVertices; v++) {
+            if (matriz[vTopoPilha][v] == 1 && !listaVertice[v].getVisitado()) {
+                return v;
             }
         }
         return -1;
