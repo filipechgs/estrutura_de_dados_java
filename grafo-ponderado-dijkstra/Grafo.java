@@ -2,6 +2,7 @@ class Grafo {
     // Constantes
     private final int MAX_VERTICES = 20;      // Número máximo de vértices suportados
     private final int INFINITO = Integer.MAX_VALUE;  // Representa distância infinita
+    private final int MIN_CELL_WIDTH = 30;    // Largura mínima para células da tabela
 
     // Estruturas principais do grafo
     private Vertice listaVertice[];           // Array para armazenar os vértices
@@ -146,22 +147,34 @@ class Grafo {
      * Útil para visualizar o progresso do algoritmo
      */
     private void mostraMenor() {
+        StringBuilder divisor = new StringBuilder("+");
+        divisor.append("-".repeat(MIN_CELL_WIDTH)).append("+");
+        divisor.append("-".repeat(MIN_CELL_WIDTH)).append("+");
+        divisor.append("-".repeat(MIN_CELL_WIDTH)).append("+");
+        
+        System.out.println(divisor.toString());
+        
+        System.out.printf("| %-" + (MIN_CELL_WIDTH - 2) + "s | %-" + (MIN_CELL_WIDTH - 2) + "s | %-" + (MIN_CELL_WIDTH - 2) + "s |\n", 
+                         "Vértice", "Distância", "Pai");
+        
+        System.out.println(divisor.toString());
+        
         for (int j = 0; j < numVertices; j++) {
-            // Mostra o rótulo do vértice
-            System.out.print(listaVertice[j].getRotulo() + "=");
-            
-            // Mostra a distância ou "inf" para infinito
+            String distStr;
             if (menor[j].getDistancia() == INFINITO) {
-                System.out.print("inf");
+                distStr = "∞";
             } else {
-                System.out.print(menor[j].getDistancia());
+                distStr = String.valueOf(menor[j].getDistancia());
             }
             
-            // Mostra o vértice pai no caminho mais curto
-            String pai = listaVertice[menor[j].getPaiVertice()].getRotulo();
-            System.out.print("(" + pai + ") ");
+            String paiStr = listaVertice[menor[j].getPaiVertice()].getRotulo();
+            System.out.printf("| %-" + (MIN_CELL_WIDTH - 2) + "s | %-" + (MIN_CELL_WIDTH - 2) + "s | %-" + (MIN_CELL_WIDTH - 2) + "s |\n", 
+                             listaVertice[j].getRotulo(), 
+                             distStr, 
+                             paiStr);
         }
-        System.out.println();
+        
+        System.out.println(divisor.toString());
     }
     
     /**
@@ -192,7 +205,7 @@ class Grafo {
         menor[inicioVertice].setDistancia(0);
         
         // Mostra o estado inicial das distâncias
-        System.out.print("Inicialização: ");
+        System.out.println("\n=== Inicialização ===");
         mostraMenor();
         
         // Inicia o processo principal do algoritmo de Dijkstra
@@ -214,12 +227,13 @@ class Grafo {
             ajustaMenor();
             
             // Mostra o estado atual das distâncias após esta iteração
-            System.out.print("Iteração " + numFechados + ": ");
+            System.out.println("\n=== Iteração " + numFechados + " ===");
+            System.out.println("Vértice atual: " + listaVertice[verticeAtual].getRotulo());
             mostraMenor();
         }
         
         // Exibe os caminhos mais curtos encontrados
-        System.out.println("\nCaminhos mais curtos:");
+        System.out.println("\n=== Caminhos mais curtos ===");
         for (int i = 0; i < numVertices; i++) {
             if (i != inicioVertice) {
                 mostrarCaminho(inicioVertice, i);
@@ -235,8 +249,9 @@ class Grafo {
     public void mostrarCaminho(int inicio, int fim) {
         // Verifica se existe caminho
         if (menor[fim].getDistancia() == INFINITO) {
-            System.out.println("Não há caminho de " + listaVertice[inicio].getRotulo() + 
-                               " para " + listaVertice[fim].getRotulo());
+            System.out.printf("[ %-6s → %-6s ] Não há caminho disponível\n",
+                             listaVertice[inicio].getRotulo(), 
+                             listaVertice[fim].getRotulo());
             return;
         }
         
@@ -253,15 +268,18 @@ class Grafo {
         caminho[contagem] = inicio;
         
         // Exibe o caminho na ordem correta (do início ao fim)
-        System.out.print("Caminho de " + listaVertice[inicio].getRotulo() + 
-                         " para " + listaVertice[fim].getRotulo() + ": ");
+        System.out.printf("[ %-6s → %-6s ] Distância: %-4d | Caminho: ",
+                         listaVertice[inicio].getRotulo(), 
+                         listaVertice[fim].getRotulo(),
+                         menor[fim].getDistancia());
+                         
         for (int i = contagem; i >= 0; i--) {
             System.out.print(listaVertice[caminho[i]].getRotulo());
             if (i > 0) {
-                System.out.print(" -> ");
+                System.out.print(" → ");
             }
         }
-        System.out.println(" (Distância: " + menor[fim].getDistancia() + ")");
+        System.out.println();
     }
     
     /**
@@ -278,26 +296,115 @@ class Grafo {
      * Útil para visualizar a estrutura completa do grafo
      */
     public void mostraMatriz() {
-        System.out.println("Matriz de adjacência:");
+        System.out.println("\n=== Matriz de adjacência ===");
+        
+        // Determinar tamanho fixo para cada coluna (garantindo mínimo de 30 caracteres)
+        int[] larguraColunas = new int[numVertices];
+        for (int i = 0; i < numVertices; i++) {
+            // Usa a largura mínima estabelecida
+            larguraColunas[i] = MIN_CELL_WIDTH;
+        }
+        
+        // Largura fixa para coluna de rótulos de linha
+        int colunaRotuloLargura = MIN_CELL_WIDTH;
+        
+        // Imprime cabeçalho da tabela
+        System.out.print("+");
+        for (int j = 0; j < colunaRotuloLargura; j++) {
+            System.out.print("-");
+        }
+        System.out.print("+");
+        
+        for (int i = 0; i < numVertices; i++) {
+            for (int j = 0; j < larguraColunas[i]; j++) {
+                System.out.print("-");
+            }
+            System.out.print("+");
+        }
+        System.out.println();
         
         // Cabeçalho com rótulos dos vértices
-        System.out.print("  ");
+        System.out.print("| Vértice");
+        for (int j = 0; j < colunaRotuloLargura - 8; j++) { // 8 é o tamanho de "Vértice"
+            System.out.print(" ");
+        }
+        System.out.print("|");
+        
         for (int i = 0; i < numVertices; i++) {
-            System.out.print(listaVertice[i].getRotulo() + " ");
+            String rotulo = listaVertice[i].getRotulo();
+            int espacosAntes = (larguraColunas[i] - rotulo.length()) / 2;
+            int espacosDepois = larguraColunas[i] - rotulo.length() - espacosAntes;
+            
+            for (int j = 0; j < espacosAntes; j++) {
+                System.out.print(" ");
+            }
+            System.out.print(rotulo);
+            for (int j = 0; j < espacosDepois; j++) {
+                System.out.print(" ");
+            }
+            System.out.print("|");
+        }
+        System.out.println();
+        
+        // Separador
+        System.out.print("+");
+        for (int j = 0; j < colunaRotuloLargura; j++) {
+            System.out.print("-");
+        }
+        System.out.print("+");
+        
+        for (int i = 0; i < numVertices; i++) {
+            for (int j = 0; j < larguraColunas[i]; j++) {
+                System.out.print("-");
+            }
+            System.out.print("+");
         }
         System.out.println();
         
         // Conteúdo da matriz (pesos das arestas)
         for (int i = 0; i < numVertices; i++) {
-            System.out.print(listaVertice[i].getRotulo() + " ");
+            System.out.print("| " + listaVertice[i].getRotulo());
+            for (int j = 0; j < colunaRotuloLargura - listaVertice[i].getRotulo().length() - 2; j++) {
+                System.out.print(" ");
+            }
+            System.out.print("|");
+            
             for (int j = 0; j < numVertices; j++) {
+                String valor;
                 if (matriz[i][j] == INFINITO) {
-                    System.out.print("∞ ");
+                    valor = "∞";
                 } else {
-                    System.out.print(matriz[i][j] + " ");
+                    valor = String.valueOf(matriz[i][j]);
                 }
+                
+                int espacosAntes = (larguraColunas[j] - valor.length()) / 2;
+                int espacosDepois = larguraColunas[j] - valor.length() - espacosAntes;
+                
+                for (int k = 0; k < espacosAntes; k++) {
+                    System.out.print(" ");
+                }
+                System.out.print(valor);
+                for (int k = 0; k < espacosDepois; k++) {
+                    System.out.print(" ");
+                }
+                System.out.print("|");
             }
             System.out.println();
         }
+        
+        // Linha final da tabela
+        System.out.print("+");
+        for (int j = 0; j < colunaRotuloLargura; j++) {
+            System.out.print("-");
+        }
+        System.out.print("+");
+        
+        for (int i = 0; i < numVertices; i++) {
+            for (int j = 0; j < larguraColunas[i]; j++) {
+                System.out.print("-");
+            }
+            System.out.print("+");
+        }
+        System.out.println();
     }
 }
