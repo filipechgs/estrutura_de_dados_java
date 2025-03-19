@@ -62,11 +62,15 @@ class Grafo {
      * @param peso Peso/distância da aresta
      */
     public void adicionaAresta(int inicio, int fim, int peso) {
-        if (inicio >= 0 && inicio < numVertices && fim >= 0 && fim < numVertices) {
-            matriz[inicio][fim] = peso;
-        } else {
-            System.out.println("Erro: vértice inválido!");
+        if (peso < 0) {
+            // System.out.println("Erro: Arestas com peso negativo não são permitidas.");
+            return;
         }
+        if (inicio == fim) {
+            // System.out.println("Erro: Loop detectado! Não é possível adicionar arestas que ligam um vértice a si mesmo.");
+            return;
+        }
+        matriz[inicio][fim] = peso;
     }
     
     /**

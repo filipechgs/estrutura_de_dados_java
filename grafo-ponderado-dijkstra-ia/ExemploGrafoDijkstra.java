@@ -1,10 +1,13 @@
+
 /**
  * ExemploGrafoDijkstra - Classe para demonstrar o uso do algoritmo de Dijkstra
  * Demonstra a criação de um grafo, adição de vértices e arestas, e
  * execução do algoritmo para encontrar caminhos mais curtos.
  */
 public class ExemploGrafoDijkstra {
+
     public static void main(String[] args) {
+        
         // Cria um novo grafo
         Grafo grafo = new Grafo();
         
@@ -114,6 +117,7 @@ public class ExemploGrafoDijkstra {
         
         // Encontra caminhos mais curtos a partir de Porto Alegre
         System.out.println("\n=== Caminhos mais curtos a partir de Porto Alegre ===");
-        grafo2.caminhoMaisCurto(6);
+        grafo2.caminhoMaisCurto(6); 
+        
     }
 }
