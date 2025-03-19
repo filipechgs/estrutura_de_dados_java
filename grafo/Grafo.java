@@ -1,9 +1,9 @@
 /* Implementado com Matriz de Adjacencia */
 class Grafo {
 
-    private static final int MAX_VERTICES = 20; // final e static tornam essa variável constante.
+    private static final int MAX_VERTICES = 20; // 'final' torna essa variável uma constante.
     private Vertice[] listaVertice;
-    private int[][] matriz;
+    private int[][] matriz; // Pode ser feito CRUD da matriz de insidência
     private int numVertices;
 
     public Grafo() {
@@ -49,7 +49,11 @@ class Grafo {
      *  Métodos que implemtam algorítmos para sistematicamente buscar e identificar todos
      *  os vértices alcançáveis a partir de um determinado vértice inicial.
      */
-    // Deep-first Search
+    /**
+     * Deep-first Search || Pesquisa em Profundidade
+     * Visa identificar primeiro a profundidade de cada adjacencia a partir
+     * de um vértice inicial
+     */
     public void executarDFS() { 
         if (numVertices == 0) {
             System.out.println("Erro: Nenhum vértice disponível para busca.");
@@ -96,7 +100,10 @@ class Grafo {
         return -1;
     }
 
-    // Breadth-first Search
+    /**
+     * Breadth-first Search || Pesquisa em Largura
+     * Visa identificar primeiro os verticer adjacentes a um vertice inicial
+     */
     public void executarBFS() { 
         if (numVertices == 0) {
             System.out.println("Erro: Nenhum vértice disponível para busca.");
@@ -123,6 +130,8 @@ class Grafo {
                 listaVertice[vertice2].marcarComoVisitado();
                 mostrarVertice(vertice2);
                 fila.enqueue(vertice2);
+
+                // A partir da qui o looping retorna para verificar se vertice2 tem mais adjacencia não visitada 
             }
         }
 

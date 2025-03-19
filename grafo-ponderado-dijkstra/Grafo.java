@@ -1,0 +1,303 @@
+class Grafo {
+    // Constantes
+    private final int MAX_VERTICES = 20;      // Número máximo de vértices suportados
+    private final int INFINITO = Integer.MAX_VALUE;  // Representa distância infinita
+
+    // Estruturas principais do grafo
+    private Vertice listaVertice[];           // Array para armazenar os vértices
+    private int matriz[][];                   // Matriz de adjacência (pesos das arestas)
+    private int numVertices;                  // Contador de vértices atual
+    
+    // Estruturas para o algoritmo de Dijkstra
+    private DistanciaEstimada menor[];        // Array para armazenar menor distância conhecida para cada vértice
+    private int numFechados;                  // Contador de vértices processados
+    private int verticeAtual;                 // Vértice sendo processado atualmente
+    private int distParaAtual;                // Distância do vértice inicial até o vértice atual
+    
+    /**
+     * Construtor - Inicializa o grafo vazio
+     */
+    public Grafo() {
+        // Inicializar arrays e matriz
+        listaVertice = new Vertice[MAX_VERTICES];
+        matriz = new int[MAX_VERTICES][MAX_VERTICES];
+        menor = new DistanciaEstimada[MAX_VERTICES];
+        
+        // Inicializar cada vértice e distância estimada
+        for (int i = 0; i < MAX_VERTICES; i++) {
+            listaVertice[i] = new Vertice();
+            menor[i] = new DistanciaEstimada();
+        }
+        
+        // Inicializar todas as arestas com distância infinita
+        for (int y = 0; y < MAX_VERTICES; y++) {
+            for (int x = 0; x < MAX_VERTICES; x++) {
+                matriz[x][y] = INFINITO;
+            }
+        }
+        
+        // Inicializar contadores
+        numVertices = 0;
+        numFechados = 0;
+    }
+    
+    /**
+     * Adiciona um novo vértice ao grafo
+     * @param rotulo Nome/identificador do vértice
+     */
+    public void adicionaVertice(String rotulo) {
+        if (numVertices < MAX_VERTICES) {
+            listaVertice[numVertices].setRotulo(rotulo);
+            numVertices++;
+        } else {
+            System.out.println("Erro: grafo cheio!");
+        }
+    }
+    
+    /**
+     * Adiciona uma aresta direcionada com peso entre dois vértices
+     * @param inicio Índice do vértice de origem
+     * @param fim Índice do vértice de destino
+     * @param peso Peso/distância da aresta
+     */
+    public void adicionaAresta(int inicio, int fim, int peso) {
+        if (inicio >= 0 && inicio < numVertices && fim >= 0 && fim < numVertices) {
+            matriz[inicio][fim] = peso;
+        } else {
+            System.out.println("Erro: vértice inválido!");
+        }
+    }
+    
+    /**
+     * Exibe o rótulo de um vértice específico
+     * @param v Índice do vértice
+     */
+    public void mostraVertice(int v) {
+        System.out.print(listaVertice[v].getRotulo());
+    }
+    
+    /**
+     * Busca um vértice pelo seu rótulo
+     * @param rotulo Rótulo do vértice a ser encontrado
+     * @return Índice do vértice ou -1 se não encontrado
+     */
+    public int encontraVertice(String rotulo) {
+        for (int i = 0; i < numVertices; i++) {
+            if (listaVertice[i].getRotulo().equals(rotulo)) {
+                return i;
+            }
+        }
+        return -1;
+    }
+    
+    /**
+     * Encontra o vértice não visitado com a menor distância estimada
+     * Parte essencial do algoritmo de Dijkstra
+     * @return Índice do vértice com menor distância
+     */
+    private int pegaMinimo() {
+        int minimo = INFINITO;
+        int indice = -1; // Valor inicial para indicar que nenhum vértice foi encontrado
+        
+        // Busca em todos os vértices
+        for (int j = 0; j < numVertices; j++) {
+            // Seleciona apenas vértices não visitados com distância menor que a mínima atual
+            if (!listaVertice[j].getVisitado() && menor[j].getDistancia() < minimo) {
+                minimo = menor[j].getDistancia();
+                indice = j;
+            }
+        }
+        return indice;
+    }
+    
+    /**
+     * Atualiza as distâncias estimadas para vértices adjacentes ao vértice atual
+     * Implementa a operação de relaxamento de arestas do algoritmo de Dijkstra
+     */
+    private void ajustaMenor() {
+        int coluna = 0;
+        
+        // Para cada vértice do grafo
+        while (coluna < numVertices) {
+            // Ignora vértices já visitados
+            if (listaVertice[coluna].getVisitado()) {
+                coluna++;
+                continue;
+            }
+            
+            // Verifica se há aresta entre o vértice atual e este vértice
+            int atualParaMargem = matriz[verticeAtual][coluna];
+            
+            // Calcula nova distância possível
+            int inicioParaMargem = distParaAtual + atualParaMargem;
+            int menorDistancia = menor[coluna].getDistancia();
+            
+            // Se a nova distância for menor que a conhecida, atualiza
+            if (inicioParaMargem < menorDistancia) {
+                menor[coluna].setPaiVertice(verticeAtual);  // Atualiza o pai para reconstruir o caminho
+                menor[coluna].setDistancia(inicioParaMargem);  // Atualiza a menor distância
+            }
+            coluna++;
+        }
+    }
+    
+    /**
+     * Exibe o estado atual das distâncias mínimas encontradas
+     * Útil para visualizar o progresso do algoritmo
+     */
+    private void mostraMenor() {
+        for (int j = 0; j < numVertices; j++) {
+            // Mostra o rótulo do vértice
+            System.out.print(listaVertice[j].getRotulo() + "=");
+            
+            // Mostra a distância ou "inf" para infinito
+            if (menor[j].getDistancia() == INFINITO) {
+                System.out.print("inf");
+            } else {
+                System.out.print(menor[j].getDistancia());
+            }
+            
+            // Mostra o vértice pai no caminho mais curto
+            String pai = listaVertice[menor[j].getPaiVertice()].getRotulo();
+            System.out.print("(" + pai + ") ");
+        }
+        System.out.println();
+    }
+    
+    /**
+     * Implementação do algoritmo de Dijkstra para encontrar todos os caminhos
+     * mais curtos a partir de um vértice inicial
+     * @param inicioVertice Índice do vértice de origem
+     */
+    public void caminhoMaisCurto(int inicioVertice) {
+        // Inicializa estruturas para o algoritmo
+        for (int i = 0; i < numVertices; i++) {
+            listaVertice[i].setVisitado(false);  // Nenhum vértice visitado inicialmente
+            menor[i].setDistancia(INFINITO);     // Todas distâncias iniciam como infinito
+            menor[i].setPaiVertice(0);           // Pai inicial é 0 (será corrigido)
+        }
+        
+        // Marca o vértice inicial como visitado
+        listaVertice[inicioVertice].setVisitado(true);
+        numFechados = 1;  // Um vértice fechado (visitado)
+        
+        // Inicializa as distâncias diretas do vértice inicial para seus vizinhos
+        for (int j = 0; j < numVertices; j++) {
+            int tempDist = matriz[inicioVertice][j];
+            menor[j].setDistancia(tempDist);
+            menor[j].setPaiVertice(inicioVertice);
+        }
+        
+        // A distância do vértice inicial para ele mesmo é 0
+        menor[inicioVertice].setDistancia(0);
+        
+        // Mostra o estado inicial das distâncias
+        System.out.print("Inicialização: ");
+        mostraMenor();
+        
+        // Inicia o processo principal do algoritmo de Dijkstra
+        while (numFechados < numVertices) {
+            // Encontra o próximo vértice não visitado com menor distância
+            int indexMin = pegaMinimo();
+            if (indexMin == -1) {
+                // Não há mais vértices acessíveis
+                break;
+            }
+            
+            // Marca o vértice encontrado como atual e visitado
+            verticeAtual = indexMin;
+            distParaAtual = menor[verticeAtual].getDistancia();
+            listaVertice[verticeAtual].setVisitado(true);
+            numFechados++;
+            
+            // Atualiza as distâncias para os vértices adjacentes ao vértice atual
+            ajustaMenor();
+            
+            // Mostra o estado atual das distâncias após esta iteração
+            System.out.print("Iteração " + numFechados + ": ");
+            mostraMenor();
+        }
+        
+        // Exibe os caminhos mais curtos encontrados
+        System.out.println("\nCaminhos mais curtos:");
+        for (int i = 0; i < numVertices; i++) {
+            if (i != inicioVertice) {
+                mostrarCaminho(inicioVertice, i);
+            }
+        }
+    }
+    
+    /**
+     * Exibe o caminho mais curto entre dois vértices
+     * @param inicio Índice do vértice de origem
+     * @param fim Índice do vértice de destino
+     */
+    public void mostrarCaminho(int inicio, int fim) {
+        // Verifica se existe caminho
+        if (menor[fim].getDistancia() == INFINITO) {
+            System.out.println("Não há caminho de " + listaVertice[inicio].getRotulo() + 
+                               " para " + listaVertice[fim].getRotulo());
+            return;
+        }
+        
+        // Array para armazenar o caminho (de trás para frente)
+        int[] caminho = new int[numVertices];
+        int contagem = 0;
+        int atual = fim;
+        
+        // Reconstrói o caminho usando os "pais" de cada vértice
+        while (atual != inicio) {
+            caminho[contagem++] = atual;
+            atual = menor[atual].getPaiVertice();
+        }
+        caminho[contagem] = inicio;
+        
+        // Exibe o caminho na ordem correta (do início ao fim)
+        System.out.print("Caminho de " + listaVertice[inicio].getRotulo() + 
+                         " para " + listaVertice[fim].getRotulo() + ": ");
+        for (int i = contagem; i >= 0; i--) {
+            System.out.print(listaVertice[caminho[i]].getRotulo());
+            if (i > 0) {
+                System.out.print(" -> ");
+            }
+        }
+        System.out.println(" (Distância: " + menor[fim].getDistancia() + ")");
+    }
+    
+    /**
+     * Reinicia o estado de todos os vértices para não visitados
+     */
+    public void limpaFlags() {
+        for (int i = 0; i < numVertices; i++) {
+            listaVertice[i].setVisitado(false);
+        }
+    }
+    
+    /**
+     * Exibe a matriz de adjacência do grafo
+     * Útil para visualizar a estrutura completa do grafo
+     */
+    public void mostraMatriz() {
+        System.out.println("Matriz de adjacência:");
+        
+        // Cabeçalho com rótulos dos vértices
+        System.out.print("  ");
+        for (int i = 0; i < numVertices; i++) {
+            System.out.print(listaVertice[i].getRotulo() + " ");
+        }
+        System.out.println();
+        
+        // Conteúdo da matriz (pesos das arestas)
+        for (int i = 0; i < numVertices; i++) {
+            System.out.print(listaVertice[i].getRotulo() + " ");
+            for (int j = 0; j < numVertices; j++) {
+                if (matriz[i][j] == INFINITO) {
+                    System.out.print("∞ ");
+                } else {
+                    System.out.print(matriz[i][j] + " ");
+                }
+            }
+            System.out.println();
+        }
+    }
+}
